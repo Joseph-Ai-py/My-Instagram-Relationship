@@ -1,0 +1,6 @@
+# Local Instagram exports
+*.zip
+instagram-joseph_general.py-*/
+connections/
+followers_and_following/
+.DS_Store

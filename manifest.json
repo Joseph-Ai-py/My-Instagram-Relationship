@@ -1,0 +1,10 @@
+{
+  "name": "Instagram Relationship Universe",
+  "short_name": "IRU",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#05060a",
+  "theme_color": "#05060a",
+  "orientation": "portrait",
+  "description": "개인 Instagram 관계를 모바일 3D temporal graph로 시각화합니다."
+}

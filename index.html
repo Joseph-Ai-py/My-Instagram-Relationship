@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#05060a" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="stylesheet" href="./style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+      }
+    }
+  </script>
+  <title>My Instagram Relationship</title>
+</head>
+<body>
+  <div class="site-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">◎</div>
+        <div>
+          <div class="eyebrow">MY INSTAGRAM RELATIONSHIP</div>
+          <h1>My Instagram Relationship</h1>
+        </div>
+      </div>
+      <div class="top-actions">
+        <div class="live-state"><span id="importStatus" class="status-dot"></span><span id="stateLabel">IMPORT REQUIRED</span></div>
+        <button id="resetView" class="ghost-button" type="button">RESET</button>
+        <button id="showImporter" class="primary-button" type="button">IMPORT ZIP</button>
+      </div>
+    </header>
+
+    <main class="main-grid">
+      <section class="visual-panel" aria-label="3D relationship universe">
+        <canvas id="scene"></canvas>
+        <div class="scene-vignette"></div>
+
+        <div class="scene-hud">
+          <div class="hud-left">
+            <div class="hud-date" id="dateLabel">2026.09.19</div>
+            <div class="hud-sub" id="stateMeta">Instagram ZIP을 선택하세요</div>
+          </div>
+          <div class="orbit-legend">
+            <span class="legend-item"><i class="c1"></i>CF <b id="countOrbit1">0</b></span>
+            <span class="legend-item"><i class="c2"></i>MUTUAL <b id="countOrbit2">0</b></span>
+            <span class="legend-item"><i class="c3"></i>ONE-WAY <b id="countOrbit3">0</b></span>
+            <span class="legend-item"><i class="c4"></i>PENDING <b id="countOrbit4">0</b></span>
+          </div>
+        </div>
+
+        <div class="scene-help">Drag / touch to rotate · wheel / pinch to zoom · tap a node for details</div>
+
+        <aside id="detailPanel" class="detail-sheet hidden" aria-live="polite">
+          <div class="sheet-kicker">SELECTED PERSON</div>
+          <button id="closeDetail" class="sheet-close" type="button" aria-label="Close detail">×</button>
+          <div id="detailUsername" class="detail-username">@username</div>
+          <div id="detailOrbit" class="detail-orbit">Mutual</div>
+          <div class="detail-grid">
+            <span>Follower</span><strong id="detailFollower">—</strong>
+            <span>Following</span><strong id="detailFollowing">—</strong>
+            <span>Close Friend</span><strong id="detailCloseFriend">—</strong>
+            <span>Restricted</span><strong id="detailRestricted">—</strong>
+            <span>Hide Story</span><strong id="detailHideStory">—</strong>
+            <span>Pending</span><strong id="detailPending">—</strong>
+          </div>
+          <div id="detailNote" class="detail-note"></div>
+        </aside>
+
+        <div id="loading" class="loading-overlay done">
+          <div class="loader"></div>
+          <div>관계 공간을 준비하는 중…</div>
+        </div>
+
+        <div id="importOverlay" class="import-overlay">
+          <div class="import-card">
+            <div class="eyebrow">PERSONAL / LOCAL PROCESSING</div>
+            <h2>Instagram 관계를<br><span>우주처럼</span> 펼쳐보세요.</h2>
+            <p>Instagram 원본 ZIP을 브라우저에서 직접 읽습니다. ZIP 원본은 서버로 업로드하지 않습니다.</p>
+            <div id="dropZone" class="drop-zone">
+              <div class="drop-icon">✦</div>
+              <div class="drop-title">Instagram ZIP 선택</div>
+              <div class="drop-sub"><code>connections/followers_and_following/</code>를 자동 탐색합니다.</div>
+              <label class="file-picker-button" for="archiveInput">ZIP 불러오기</label>
+              <input id="archiveInput" class="file-input" type="file" accept=".zip,application/zip,application/x-zip-compressed" />
+            </div>
+            <div class="import-file-row"><span class="import-dot"></span><span id="importName">아직 데이터 없음</span></div>
+            <div class="required-files"><span id="requiredFileCount">11 relation files</span><span id="loadedFileStatus">브라우저 로컬 처리</span></div>
+            <div id="importError" class="import-error"></div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="inspector">
+        <div class="inspector-section">
+          <div class="section-kicker">RELATIONSHIP SNAPSHOT</div>
+          <div class="stat-grid">
+            <div class="stat"><span>TOTAL</span><strong id="metricTotal">0</strong></div>
+            <div class="stat"><span>FOLLOWERS</span><strong id="metricFollowers">0</strong></div>
+            <div class="stat"><span>FOLLOWING</span><strong id="metricFollowing">0</strong></div>
+            <div class="stat"><span>MUTUAL</span><strong id="metricMutual">0</strong></div>
+          </div>
+        </div>
+
+        <div class="inspector-section">
+          <div class="section-kicker">ORBIT MAP</div>
+          <div class="orbit-list">
+            <div class="orbit-row"><i class="c1"></i><span>Orbit 1 · Close Friends</span><b id="sideOrbit1">0</b></div>
+            <div class="orbit-row"><i class="c2"></i><span>Orbit 2 · Mutual</span><b id="sideOrbit2">0</b></div>
+            <div class="orbit-row"><i class="c3"></i><span>Orbit 3 · One-way</span><b id="sideOrbit3">0</b></div>
+            <div class="orbit-row"><i class="c4"></i><span>Orbit 4 · Pending</span><b id="sideOrbit4">0</b></div>
+          </div>
+        </div>
+
+        <div class="inspector-section modifier-section">
+          <div class="section-kicker">MODIFIERS</div>
+          <div class="modifier-list">
+            <div><i class="modifier-ring cf-ring"></i><span>Close Friends ring</span></div>
+            <div><i class="modifier-ring restricted-ring"></i><span>Restricted ring</span></div>
+            <div><i class="modifier-mark hide-mark"></i><span>Hide Story marker</span></div>
+          </div>
+        </div>
+
+        <div class="inspector-section inspector-detail">
+          <div class="section-kicker">DETAIL</div>
+          <div class="empty-detail" id="emptyDetail">노드를 선택하면 관계 상태가 여기에 표시됩니다.</div>
+          <div id="desktopDetail" class="desktop-detail hidden">
+            <div id="desktopDetailUsername" class="detail-username">@username</div>
+            <div id="desktopDetailOrbit" class="detail-orbit">Mutual</div>
+            <div class="detail-grid">
+              <span>Follower</span><strong id="desktopFollower">—</strong>
+              <span>Following</span><strong id="desktopFollowing">—</strong>
+              <span>Close Friend</span><strong id="desktopCloseFriend">—</strong>
+              <span>Restricted</span><strong id="desktopRestricted">—</strong>
+              <span>Hide Story</span><strong id="desktopHideStory">—</strong>
+              <span>Pending</span><strong id="desktopPending">—</strong>
+            </div>
+            <div id="desktopNote" class="detail-note"></div>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <section class="timeline-dock">
+      <div class="timeline-top">
+        <div>
+          <div class="section-kicker">타임라인</div>
+          <div id="timelineTitle" class="timeline-title">ZIP 데이터를 불러오면 기간이 표시됩니다</div>
+        </div>
+        <div class="playback">
+          <button id="playTimeline" class="play-button" type="button">▶</button>
+          <div class="speed-group" aria-label="Playback speed">
+            <button data-speed="0.25">0.25×</button>
+            <button data-speed="0.5">0.5×</button>
+            <button data-speed="1" class="active">1×</button>
+            <button data-speed="2">2×</button>
+            <button data-speed="4">4×</button>
+          </div>
+          <button id="currentTimeline" class="current-button" type="button">LATEST</button>
+        </div>
+      </div>
+      <div class="timeline-wrap">
+        <div id="yearLabels" class="year-labels"></div>
+        <input id="timeline" type="range" min="0" max="1000" step="1" value="1000" aria-label="Relationship timeline" />
+        <div id="eventTrack" class="event-track"></div>
+      </div>
+      <div class="timeline-foot">
+        <span id="coverageLabel">Partial history</span>
+        <span id="timelineHint">Nodes animate when relationships change</span>
+      </div>
+    </section>
+  </div>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
